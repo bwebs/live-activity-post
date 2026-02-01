@@ -52,7 +52,7 @@ This project consists of three parts:
    ```
 3. Install dependencies:
    ```bash
-   pip install -r requirements.txt
+   pip install .
    ```
 4. Run:
    ```bash

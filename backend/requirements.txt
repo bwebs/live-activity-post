@@ -1,8 +1,0 @@
-fastapi
-uvicorn
-firebase-admin
-pydantic-ai
-httpx
-python-multipart
-python-dotenv
-pyjwt[crypto]

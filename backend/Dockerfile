@@ -1,9 +1,11 @@
-FROM python:3.9-slim
+FROM python:3.13-slim
 
 WORKDIR /app
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY pyproject.toml .
+COPY README.md .
+# Install build backend and then the project dependencies
+RUN pip install --no-cache-dir hatchling && pip install --no-cache-dir .
 
 COPY . .
 
