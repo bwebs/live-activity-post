@@ -1,0 +1,44 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Backend: FastAPI",
+            "type": "python",
+            "request": "launch",
+            "module": "uvicorn",
+            "args": [
+                "main:app",
+                "--reload",
+                "--port",
+                "8000"
+            ],
+            "cwd": "${workspaceFolder}/backend",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/backend"
+            },
+            "justMyCode": true
+        },
+        {
+            "name": "Web: Chrome",
+            "type": "chrome",
+            "request": "launch",
+            "url": "http://localhost:5173",
+            "webRoot": "${workspaceFolder}/web/src",
+            "preLaunchTask": "npm: dev"
+        },
+        {
+            "name": "Mobile: Debug Android",
+            "cwd": "${workspaceFolder}/mobile",
+            "type": "reactnativedirect",
+            "request": "launch",
+            "platform": "android"
+        },
+        {
+            "name": "Mobile: Debug iOS",
+            "cwd": "${workspaceFolder}/mobile",
+            "type": "reactnativedirect",
+            "request": "launch",
+            "platform": "ios"
+        }
+    ]
+}

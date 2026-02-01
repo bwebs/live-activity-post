@@ -101,6 +101,32 @@ docker run -p 8000:8000 myapp-backend
    npx react-native run-ios
    ```
 
+## TestFlight Deployment
+
+To deploy the iOS application to TestFlight for beta testing:
+
+1.  **Prepare for Archive**:
+    -   Open `mobile/ios/mobile.xcworkspace` in Xcode.
+    -   Select your generic iOS Device (Any iOS Device) as the build target.
+    -   Ensure your **Signing & Capabilities** are correctly configured with your Apple Distribution Certificate and Provisioning Profile.
+
+2.  **Archive**:
+    -   Go to **Product** > **Archive**.
+    -   Xcode will build the app and the Widget Extension. Wait for the Archives window to appear.
+
+3.  **Upload to App Store Connect**:
+    -   Select the latest archive in the Organizer window.
+    -   Click **Distribute App**.
+    -   Select **App Store Connect** > **Upload**.
+    -   Follow the wizard (validation checks, managing symbols, etc.).
+    -   Click **Upload**.
+
+4.  **TestFlight**:
+    -   Log in to [App Store Connect](https://appstoreconnect.apple.com).
+    -   Go to **My Apps** > Select your app > **TestFlight** tab.
+    -   Once the build finishes processing (this may take a few minutes to an hour), it will appear in the list.
+    -   Add **Internal Testing** groups or individual testers to invite them to download the app via the TestFlight app.
+
 ## Release Workflow
 
 GitHub Action `release.yml` triggers on tags (`v*`).
