@@ -1,0 +1,8 @@
+INFO:     Started server process [2679]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8001 (Press CTRL+C to quit)
+Warning: Firebase credentials not found. Firestore will not work.
+Received webhook for token: mock_token, payload: {'event': 'test'}
+Found user: mock_user_id
+INFO:     127.0.0.1:44068 - "POST /webhook/mock_token HTTP/1.1" 200 OK
