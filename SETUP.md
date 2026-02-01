@@ -1,16 +1,18 @@
 # Setup Guide
 
 This project consists of three parts:
-- **Backend**: Python FastAPI app with Pydantic AI.
-- **Web**: React app for user login and dashboard.
-- **Mobile**: React Native (Expo) app for iOS with Live Activities.
+- **Backend**: Python FastAPI app with Pydantic AI (Dockerized).
+- **Web**: React TypeScript app for user login and dashboard.
+- **Mobile**: Bare React Native TypeScript app for iOS with Live Activities.
 
 ## Prerequisites
 
 - Node.js & npm/yarn
 - Python 3.9+
+- Docker (for backend deployment)
 - Apple Developer Account (for APNs and Live Activities)
 - Firebase Project (for Auth and Firestore)
+- CocoaPods & Xcode (for iOS build)
 
 ## 1. Firebase Setup
 
@@ -22,7 +24,7 @@ This project consists of three parts:
    - Save this file as `service-account.json` in `backend/`.
 5. **Client Auth**: Create a Web App in Firebase console and get the config object (apiKey, authDomain, etc.).
    - Update `web/.env` with these values.
-   - Update `mobile/firebaseConfig.js` with these values.
+   - Update `mobile/firebaseConfig.ts` with these values.
 
 ## 2. Apple Developer Setup
 
@@ -35,6 +37,7 @@ This project consists of three parts:
 
 ## 3. Backend Setup
 
+### Local
 1. Navigate to `backend/`.
 2. Create `.env`:
    ```
@@ -43,69 +46,64 @@ This project consists of three parts:
    APPLE_KEY_ID=your_key_id
    APPLE_BUNDLE_ID=your_bundle_id
    APPLE_P8_PATH=authkey.p8
-   OPENAI_API_KEY=your_openai_key (Optional, for AI features)
-   APNS_ENV=sandbox (or production)
+   OPENAI_API_KEY=your_openai_key (Optional)
+   APNS_ENV=sandbox
+   APP_VERSION=local
    ```
 3. Install dependencies:
    ```bash
    pip install -r requirements.txt
    ```
-4. Run server:
+4. Run:
    ```bash
    uvicorn main:app --reload
    ```
 
+### Docker
+```bash
+cd backend
+docker build --build-arg APP_VERSION=v1.0.0 -t myapp-backend .
+docker run -p 8000:8000 myapp-backend
+```
+
 ## 4. Web App Setup
 
 1. Navigate to `web/`.
-2. Create `.env` based on Firebase config:
+2. Create `.env`:
    ```
    VITE_FIREBASE_API_KEY=...
-   VITE_FIREBASE_AUTH_DOMAIN=...
-   VITE_FIREBASE_PROJECT_ID=...
-   VITE_FIREBASE_STORAGE_BUCKET=...
-   VITE_FIREBASE_MESSAGING_SENDER_ID=...
-   VITE_FIREBASE_APP_ID=...
+   # ... other firebase config
    ```
-3. Install and run:
+3. Run:
    ```bash
    npm install
    npm run dev
    ```
 
-## 5. Mobile App Setup
+## 5. Mobile App Setup (Bare React Native)
 
 1. Navigate to `mobile/`.
 2. Install dependencies:
    ```bash
    npm install
    ```
-3. Update `firebaseConfig.js` with your Firebase config.
-4. Update `App.js` with your Backend URL (`BACKEND_URL`).
-5. **Native Integration (Live Activities)**:
-   - Since Live Activities require native code, you must use a development build or prebuild.
-   - Run `npx expo prebuild` to generate the `ios` directory.
-   - Add a **Widget Extension** target in Xcode:
-     - File -> New -> Target -> Widget Extension.
-     - Ensure "Include Live Activity" is checked.
-   - Copy the contents of `mobile/ios/LiveActivityAttributes.swift` into your Widget Extension's swift file.
-   - Create a Native Module (Bridge) to start the activity using the code provided in `mobile/ios/LiveActivityModule.swift`.
-     - You will need to wrap this in an Expo Module or a standard React Native Native Module.
-6. Run the app:
+3. **iOS Setup**:
+   - `cd ios`
+   - `pod install`
+   - Open `mobile.xcworkspace` in Xcode.
+4. **Live Activity Setup**:
+   - In Xcode, File -> New -> Target -> Widget Extension.
+   - Check "Include Live Activity". Name it "MyActivity".
+   - **Crucial**: Ensure the `LiveActivityAttributes` struct in your Widget Extension matches `mobile/ios/mobile/LiveActivityAttributes.swift`. You may need to share this file between targets or copy the definition.
+   - The native module logic is already in `mobile/ios/mobile/LiveActivityModule.swift` and exposed via `LiveActivityModule.m`.
+5. **Run**:
    ```bash
-   npx expo run:ios
+   npx react-native run-ios
    ```
 
-## Usage Flow
+## Release Workflow
 
-1. **Web**: User logs in. Dashboard shows "Download App".
-2. **Mobile**: User logs in. App asks for Push Permission.
-3. **Mobile**: App generates a `webhookToken` and registers it with the Backend (saving push token).
-4. **Web**: Dashboard detects the token and shows the Webhook URL.
-5. **Action**: Send a POST request to the Webhook URL:
-   ```bash
-   curl -X POST http://localhost:8000/webhook/THE_TOKEN \
-     -H "Content-Type: application/json" \
-     -d '{"event": "Goal Scored", "value": 1.0}'
-   ```
-6. **Result**: Backend receives payload -> AI processes it -> Sends APNs Live Activity Update -> Notification appears on iPhone.
+GitHub Action `release.yml` triggers on tags (`v*`).
+- **Backend**: Builds Docker image with tag version.
+- **Web**: Builds static site with tag version.
+- **Mobile**: Bundles JS for iOS/Android (does not build IPA/APK).

@@ -1,5 +1,5 @@
 import os
-from fastapi import FastAPI, HTTPException, Request, BackgroundTasks
+from fastapi import FastAPI, HTTPException, Request, BackgroundTasks, Header
 from pydantic import BaseModel
 from typing import Dict, Any, Optional
 
@@ -8,6 +8,8 @@ from ai_agent import process_payload_with_ai
 from apns_utils import send_live_activity_update
 
 app = FastAPI()
+
+APP_VERSION = os.getenv("APP_VERSION", "unknown")
 
 async def process_and_push(user: Dict[str, Any], payload: Any):
     print(f"Processing payload for user {user.get('userId')}")
@@ -25,11 +27,12 @@ async def process_and_push(user: Dict[str, Any], payload: Any):
 
 @app.on_event("startup")
 async def startup_event():
+    print(f"Starting Backend Version: {APP_VERSION}")
     init_firebase()
 
 @app.get("/")
 def read_root():
-    return {"status": "ok", "message": "Backend is running"}
+    return {"status": "ok", "message": "Backend is running", "version": APP_VERSION}
 
 class RegisterRequest(BaseModel):
     userId: str
@@ -37,20 +40,25 @@ class RegisterRequest(BaseModel):
     webhookToken: str
 
 @app.post("/register")
-def register_user(req: RegisterRequest):
+def register_user(req: RegisterRequest, x_app_version: Optional[str] = Header(None)):
     """
     Endpoint for mobile app to register tokens.
     """
+    print(f"Register request from App Version: {x_app_version}")
+
     success = save_user_tokens(req.userId, req.webhookToken, req.pushToken)
     if not success and os.getenv("TEST_MODE") != "true":
         raise HTTPException(status_code=500, detail="Failed to save tokens")
     return {"status": "registered"}
 
 @app.post("/webhook/{token}")
-async def webhook_handler(token: str, request: Request, background_tasks: BackgroundTasks):
+async def webhook_handler(token: str, request: Request, background_tasks: BackgroundTasks, x_app_version: Optional[str] = Header(None)):
     """
     Public webhook url.
     """
+    if x_app_version:
+        print(f"Webhook request with App Version: {x_app_version}")
+
     # 1. Get raw payload
     try:
         payload = await request.json()

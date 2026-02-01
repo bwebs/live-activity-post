@@ -5,3 +5,5 @@ pydantic-ai
 httpx
 python-multipart
 python-dotenv
+pyjwt[crypto]
+pyjwt[crypto]
