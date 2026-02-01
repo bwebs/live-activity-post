@@ -7,7 +7,7 @@ This project consists of three parts:
 
 ## Prerequisites
 
-- Node.js & npm/yarn
+- Node.js 24.13.0 (use `nvm use`)
 - Python 3.9+
 - Docker (for backend deployment)
 - Apple Developer Account (for APNs and Live Activities)

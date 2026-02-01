@@ -19,7 +19,9 @@ import { User } from 'firebase/auth';
 const BACKEND_URL = "http://192.168.1.100:8000";
 // In bare RN, read from package.json or babel-plugin-transform-inline-environment-variables
 // For simplicity, hardcoded or use a config file
-const APP_VERSION = "1.0.0";
+// This variable is replaced during build time if using babel-plugin-transform-inline-environment-variables
+// or passing it via Config. For this setup, we rely on the CI/CD to replace this string or set it via Config.
+const APP_VERSION = process.env.APP_VERSION || "1.0.0";
 
 function App(): React.JSX.Element {
   const [user, setUser] = useState<User | null>(null);

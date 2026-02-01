@@ -39,7 +39,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 24.13.0
 
       - name: Install Dependencies
         run: |
@@ -72,7 +72,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 24.13.0
 
       - name: Install Dependencies
         run: |
@@ -80,12 +80,16 @@ jobs:
           npm install
 
       - name: Build JS Bundle (Android)
+        env:
+          APP_VERSION: ${{ steps.vars.outputs.tag }}
         run: |
           mkdir -p mobile/android/app/src/main/assets
           cd mobile
           npx react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res
 
       - name: Build JS Bundle (iOS)
+        env:
+          APP_VERSION: ${{ steps.vars.outputs.tag }}
         run: |
           mkdir -p mobile/ios/main.jsbundle
           cd mobile
